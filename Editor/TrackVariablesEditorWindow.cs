@@ -41,18 +41,14 @@ namespace _Project.Scripts.VariableTracker.Editor
                     {
                         if (member.CustomAttributes.ToArray().Length <= 0) continue;
                         var attribute = member.GetCustomAttribute<TrackAttribute>();
-                        if (attribute != null)
-                        {
-                            _exposedMembers.Add(new TrackedVariableInfo(member,attribute,type));
-                            Debug.Log("Added " + member.Name + " to exposed members with type " + type.Name);
-                            attributedMemberFound = true;
-                        }
+                        if (attribute == null) continue;
+                        _exposedMembers.Add(new TrackedVariableInfo(member,attribute,type));
+                        attributedMemberFound = true;
                     }
 
                     if (attributedMemberFound)
                     {
                         containingTypes.Add(type);
-                        Debug.Log("Added " + type.Name + " to containing types");
                     }
                 }
             }
@@ -66,7 +62,6 @@ namespace _Project.Scripts.VariableTracker.Editor
                         if (!trackedObjects.Contains(gameObject))
                         {
                             trackedObjects.Add(gameObject);
-                            Debug.Log("Added " + gameObject.name + " to tracked objects");
                         }
                     }
                 }
@@ -98,17 +93,11 @@ namespace _Project.Scripts.VariableTracker.Editor
                     if (memberInfo.MemberType == MemberTypes.Field)
                     {
                         var fieldInfo = (FieldInfo) memberInfo;
-                        string value;
-
-                        if (trackedObject.GetComponent(type) != null)
-                        {
-                            var obj = fieldInfo.GetValue(trackedObject.GetComponent(type));
-                            if (obj != null)
-                            {
-                                value = obj.ToString();
-                                EditorGUILayout.LabelField($"{attribute.DisplayName} - {value} - {trackedObject.name}");
-                            }
-                        }
+                        if (trackedObject.GetComponent(type) == null) continue;
+                        var obj = fieldInfo.GetValue(trackedObject.GetComponent(type));
+                        if (obj == null) continue;
+                        var value = obj.ToString();
+                        EditorGUILayout.LabelField($"{attribute.DisplayName} - {value} - {trackedObject.name}");
                     }
                     else
                     {
